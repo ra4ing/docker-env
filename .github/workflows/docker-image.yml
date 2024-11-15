@@ -22,7 +22,7 @@ jobs:
         id: generate-matrix
         run: |
           echo "Collecting directories..."
-          dirs=$(find . -type d -mindepth 2 -maxdepth 2)
+          dirs=$(find . -type d -mindepth 2 -maxdepth 2 -not -path '*/\.*')
           echo "Directories found:"
           echo "$dirs"
 
