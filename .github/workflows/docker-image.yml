@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  repository_dispatch:
+    types: [ dotfile-updated ]
 
 # 项目任务，任务之间可以并行调度
 jobs:
