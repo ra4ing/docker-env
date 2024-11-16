@@ -33,6 +33,6 @@ RUN cd /home/ra4ing/.dotfile && \
 
 ENV SHELL=/bin/zsh
 
-CMD ["/bin/zsh"]
+CMD ["zsh"]
 
 EXPOSE 22
