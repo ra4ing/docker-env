@@ -1,6 +1,11 @@
-FROM ubuntu:24.04
+FROM osrf/ros:jazzy-desktop-full
 
-ARG DEBIAN_FRONTEND=noninteractive
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES \
+${NVIDIA_VISIBLE_DEVICES:-all}
+
+ENV NVIDIA_DRIVER_CAPABILITIES \
+${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 # pre-install softwares
 RUN apt-get update --fix-missing || true
@@ -16,6 +21,20 @@ RUN apt-get -y update && apt-get upgrade -y
 RUN apt-get install -y lib32z1 apt-transport-https
 RUN apt-get install -y vim netcat-openbsd openssh-server
 RUN apt-get install -y git unzip curl tmux konsole wget sudo
+
+RUN apt-get update && \
+apt-get install -y \
+build-essential \
+libgl1-mesa-dev \
+libglew-dev \
+libsdl2-dev \
+libsdl2-image-dev \
+libglm-dev \
+libfreetype6-dev \
+libglfw3-dev \
+libglfw3 \
+libglu1-mesa-dev \
+freeglut3-dev
 
 
 RUN useradd -m ra4ing -s /bin/bash && \
