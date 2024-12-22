@@ -1,14 +1,14 @@
-FROM ubuntu:23.04
+FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # pre-install softwares
-# RUN sed -i "s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
-#     sed -i "/security.ubuntu.com/d" /etc/apt/sources.list
+RUN sed -i "s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
+    sed -i "/security.ubuntu.com/d" /etc/apt/sources.list
 
 RUN apt-get -y update && apt-get upgrade -y
 RUN apt-get install -y lib32z1 apt-transport-https
-RUN apt-get install -y vim netcat-openbsd openssh-server
+RUN apt-get install -y vim netcat-openbsd openssh-server net-tools
 RUN apt-get install -y git unzip curl tmux konsole wget sudo
 
 
@@ -29,7 +29,8 @@ RUN git clone https://github.com/ra4ing/dotfile.git /home/ra4ing/.dotfile
 RUN cd /home/ra4ing/.dotfile && \
     ./setup.sh          && \
     ./setup_ssh.sh      && \
-    ./setup_pwn.sh
+    ./setup_pwn.sh      && \
+    ./setup_lvim.sh
 
 ENV SHELL=/bin/zsh
 

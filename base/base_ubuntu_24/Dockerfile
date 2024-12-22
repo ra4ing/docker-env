@@ -1,10 +1,16 @@
-FROM ubuntu:23.04
+FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # pre-install softwares
-# RUN sed -i "s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
-#     sed -i "/security.ubuntu.com/d" /etc/apt/sources.list
+RUN apt-get update --fix-missing || true
+RUN apt-get install -y --no-install-recommends ca-certificates
+RUN cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
+RUN echo "Types: deb\n\
+URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu/\n\
+Suites: noble noble-updates noble-backports noble-security\n\
+Components: main restricted universe multiverse\n\
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg" > /etc/apt/sources.list.d/ubuntu.sources
 
 RUN apt-get -y update && apt-get upgrade -y
 RUN apt-get install -y lib32z1 apt-transport-https
@@ -29,7 +35,8 @@ RUN git clone https://github.com/ra4ing/dotfile.git /home/ra4ing/.dotfile
 RUN cd /home/ra4ing/.dotfile && \
     ./setup.sh          && \
     ./setup_ssh.sh      && \
-    ./setup_pwn.sh
+    ./setup_pwn.sh      && \
+    ./setup_lvim.sh
 
 ENV SHELL=/bin/zsh
 
