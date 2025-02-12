@@ -1,4 +1,4 @@
-FROM osrf/ros:jazzy-desktop-full
+FROM osrf/ros:noetic-desktop-full
 
 # nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES \
@@ -8,18 +8,12 @@ ENV NVIDIA_DRIVER_CAPABILITIES \
 ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 # pre-install softwares
-RUN apt-get update --fix-missing || true
-RUN apt-get install -y --no-install-recommends ca-certificates
-RUN cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
-RUN echo "Types: deb\n\
-URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu/\n\
-Suites: noble noble-updates noble-backports noble-security\n\
-Components: main restricted universe multiverse\n\
-Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg" > /etc/apt/sources.list.d/ubuntu.sources
+RUN sed -i "s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
+    sed -i "/security.ubuntu.com/d" /etc/apt/sources.list
 
 RUN apt-get -y update && apt-get upgrade -y
 RUN apt-get install -y lib32z1 apt-transport-https
-RUN apt-get install -y vim netcat-openbsd openssh-server
+RUN apt-get install -y vim netcat-openbsd openssh-server net-tools
 RUN apt-get install -y git unzip curl tmux konsole wget sudo
 
 RUN apt-get update && \

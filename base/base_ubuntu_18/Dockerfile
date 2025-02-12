@@ -27,9 +27,7 @@ WORKDIR /home/ra4ing
 
 RUN git clone https://github.com/ra4ing/dotfile.git /home/ra4ing/.dotfile
 RUN cd /home/ra4ing/.dotfile && \
-    ./setup.sh          && \
-    ./setup_ssh.sh      && \
-    ./setup_pwn.sh
+    ./setup.sh
 
 ENV SHELL=/bin/zsh
 

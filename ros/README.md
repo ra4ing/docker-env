@@ -1,2 +1,1 @@
-# Docker Env
 docker run --env="DISPLAY=host.docker.internal:0" --env="QT_X11_NO_MITSHM=1" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --env="XAUTHORITY=$XAUTH" --volume="$XAUTH:$XAUTH" --gpus all --restart unless-stopped --user=ra4ing --privileged=true  --volume=workspace_base:/home/ra4ing/workspace --runtime=nvidia --name=ros_jazzy -itd ra4ing/ros:jazzy-desktop-full
