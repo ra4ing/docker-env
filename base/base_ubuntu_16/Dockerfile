@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:16.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER_NAME=ra4ing
@@ -35,8 +35,7 @@ RUN apt-get install -y build-essential \
     libncurses5-dev \
     libbz2-dev \
     libsqlite3-dev \
-    libffi-dev \
-    libgmp-dev
+    libffi-dev
 
 # 生成本地化
 RUN locale-gen en_US.UTF-8
@@ -57,7 +56,6 @@ RUN apt-get remove -y openssl && \
     cp -r libcrypto.so.1.1 /usr/lib && \
     cd .. && \
     rm -rf openssl-1.1.1g openssl-1.1.1g.tar.gz
-
 RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz --no-check-certificate && \
     tar -xzf Python-${PYTHON_VERSION}.tgz && \
     cd Python-${PYTHON_VERSION} && \
@@ -79,15 +77,6 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python
     update-alternatives --install /usr/bin/pip3 pip3 /usr/local/bin/pip3.11 1 && \
     update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.11 1
 
-RUN wget https://ftp.gnu.org/gnu/gdb/gdb-13.2.tar.gz --no-check-certificate && \
-    tar -xzf gdb-13.2.tar.gz && \
-    cd gdb-13.2 && \
-    ./configure && \
-    make -j$(nproc) && \
-    make install && \
-    cd .. && \
-    rm -rf gdb-13.2 gdb-13.2.tar.gz
-
 USER ${USER_NAME}
 WORKDIR /home/${USER_NAME}
 
@@ -97,38 +86,12 @@ RUN python3 -m pip config set global.index-url http://pypi.tuna.tsinghua.edu.cn/
     python3 -m pip install --no-cache-dir certifi && \
     echo "export SSL_CERT_FILE=$(python3 -m certifi)" >> ~/.profile
 
-# 安装 Miniconda 到 ~/.conda
-# RUN mkdir -p /home/${USER_NAME}/.conda && \
-#     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /home/${USER_NAME}/.conda/miniconda.sh && \
-#     bash /home/${USER_NAME}/.conda/miniconda.sh -b -u -p /home/${USER_NAME}/.conda && \
-#     rm /home/${USER_NAME}/.conda/miniconda.sh
-
-# ENV PATH="/home/${USER_NAME}/.conda/bin:$PATH"
-
-# # 配置 pip 镜像
-# RUN /home/${USER_NAME}/.conda/bin/pip install --upgrade pip
-
-# 以下为 pwn 相关 apt 包
-RUN sudo dpkg --add-architecture i386 && \
-    sudo apt-get update && \
-    sudo apt-get install -y libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev \
-    libc6-dbg libc6-dbg:i386 bison flex gcc-multilib \
-    qemu-system-x86 qemu-user gcc gdbserver gdb-multiarch clang lldb make cmake \
-    bc lsb-release jq libgcc1:i386 patchelf
-
-# 安装pwn相关python包（用系统自带python/pip）
-RUN python3 -m pip install --no-cache-dir pwntools click ropper LibcSearcher
-
 # enable ssh key login
 #RUN mkdir /home/ubuntu/.ssh && \
 #    echo "Your ssh key" > /home/ubuntu/.ssh/authorized_keys
 
 RUN git clone https://github.com/ra4ing/dotfile.git /home/${USER_NAME}/.dotfile
-RUN cd /home/${USER_NAME}/.dotfile && \
-    ./setup.sh          && \
-    ./setup_ssh.sh      && \
-    export SSL_CERT_FILE=$(python3 -m certifi) && \
-    ./setup_pwn.sh
+RUN cd /home/${USER_NAME}/.dotfile && ./setup.sh && ./setup_ssh.sh
 
 ENV SHELL=/bin/zsh
 
