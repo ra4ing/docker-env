@@ -37,7 +37,12 @@ RUN apt-get install -y build-essential \
 # 生成本地化
 RUN locale-gen en_US.UTF-8
 
-RUN useradd -m ${USER_NAME} -s /bin/bash && \
+
+RUN if id ubuntu >/dev/null 2>&1; then \
+        userdel ubuntu; \
+        rm -rf /home/ubuntu; \
+    fi
+RUN useradd -m -u 1000 -s /bin/bash ${USER_NAME} && \
     echo "${USER_NAME}:${USER_NAME}" | chpasswd && \
     usermod -aG sudo ${USER_NAME} && \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
