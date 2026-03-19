@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG USER_NAME=ra4ing
 ENV USER_NAME=${USER_NAME}
 ENV HOME_DIR=/home/${USER_NAME}
-ENV PYTHON_VERSION=3.11
+ENV PYTHON_VERSION=3.12
 
 # pre-install softwares
 RUN apt-get update --fix-missing || true
@@ -52,20 +52,18 @@ RUN useradd -m -u 1000 -s /bin/bash ${USER_NAME} && \
     usermod -aG sudo ${USER_NAME} && \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN apt-get install -y software-properties-common && add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev && \
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+RUN apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-dev python3-pip && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 && \
     update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 && \
-    python3 -m ensurepip && \
-    update-alternatives --install /usr/bin/pip3 pip3 /usr/local/bin/pip${PYTHON_VERSION} 1 && \
-    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip${PYTHON_VERSION} 1
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 USER ${USER_NAME}
 WORKDIR /home/${USER_NAME}
 
 RUN python3 -m pip config set global.index-url http://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn && \
-    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade pip setuptools wheel
 
 # 以下为 pwn 相关 apt 包
 RUN sudo dpkg --add-architecture i386 && \

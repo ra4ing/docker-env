@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG USER_NAME=ra4ing
 ENV USER_NAME=${USER_NAME}
 ENV HOME_DIR=/home/${USER_NAME}
-ENV PYTHON_VERSION=3.11
+ENV PYTHON_VERSION=3.12
 
 # pre-install softwares
 RUN sed -i "s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
@@ -47,8 +47,10 @@ RUN useradd -m -u 1000 -s /bin/bash ${USER_NAME} && \
     usermod -aG sudo ${USER_NAME} && \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN apt-get install -y software-properties-common && add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev && \
+RUN apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update
+RUN apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-dev && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 && \
     update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 && \
     python3 -m ensurepip && \
@@ -60,7 +62,7 @@ WORKDIR /home/${USER_NAME}
 
 RUN python3 -m pip config set global.index-url http://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn && \
-    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade pip setuptools wheel
 
 # 以下为 pwn 相关 apt 包
 RUN sudo dpkg --add-architecture i386 && \

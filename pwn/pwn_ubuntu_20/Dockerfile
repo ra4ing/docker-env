@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG USER_NAME=ra4ing
 ENV USER_NAME=${USER_NAME}
 ENV HOME_DIR=/home/${USER_NAME}
-ENV PYTHON_VERSION=3.11
+ENV PYTHON_VERSION=3.12.9
 
 # pre-install softwares
 RUN sed -i "s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g" /etc/apt/sources.list && \
@@ -46,20 +46,28 @@ RUN useradd -m -u 1000 -s /bin/bash ${USER_NAME} && \
     usermod -aG sudo ${USER_NAME} && \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN apt-get install -y software-properties-common && add-apt-repository ppa:deadsnakes/ppa -y
-RUN apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 && \
+# deadsnakes PPA 已停止支持 focal (20.04)，从源码编译 Python 3.12
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz --no-check-certificate && \
+    tar -xzf Python-${PYTHON_VERSION}.tgz && \
+    cd Python-${PYTHON_VERSION} && \
+    ./configure --enable-optimizations --with-ensurepip=install && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-${PYTHON_VERSION} Python-${PYTHON_VERSION}.tgz
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/python python /usr/local/bin/python3.12 1 && \
     python3 -m ensurepip && \
-    update-alternatives --install /usr/bin/pip3 pip3 /usr/local/bin/pip${PYTHON_VERSION} 1 && \
-    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip${PYTHON_VERSION} 1
+    update-alternatives --install /usr/bin/pip3 pip3 /usr/local/bin/pip3.12 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.12 1
 
 USER ${USER_NAME}
 WORKDIR /home/${USER_NAME}
 
 RUN python3 -m pip config set global.index-url http://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn && \
-    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade pip setuptools wheel
 
 # 以下为 pwn 相关 apt 包
 RUN sudo dpkg --add-architecture i386 && \
