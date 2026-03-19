@@ -75,7 +75,8 @@ RUN sudo dpkg --add-architecture i386 && \
     sudo apt-get install -y libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev \
     libc6-dbg libc6-dbg:i386 bison flex gcc-multilib \
     qemu-system-x86 qemu-user qemu-user-binfmt gcc gdb gdbserver gdb-multiarch clang lldb make cmake \
-    bc lsb-release jq libgcc-s1:i386 patchelf
+    bc lsb-release jq libgcc-s1:i386 patchelf \
+    python3.8-venv python3.8-dev
 
 # 安装pwn相关python包（用系统自带python/pip）
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
